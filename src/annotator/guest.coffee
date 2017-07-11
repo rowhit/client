@@ -2,6 +2,7 @@ baseURI = require('document-base-uri')
 extend = require('extend')
 raf = require('raf')
 scrollIntoView = require('scroll-into-view')
+CustomEvent = require('custom-event')
 
 Delegator = require('./delegator')
 $ = require('jquery')
@@ -53,6 +54,7 @@ module.exports = class Guest extends Delegator
   plugins: null
   anchors: null
   visibleHighlights: false
+  frameIdentifier: null
 
   html:
     adder: '<hypothesis-adder></hypothesis-adder>'
@@ -81,6 +83,10 @@ module.exports = class Guest extends Delegator
 
     this.plugins = {}
     this.anchors = []
+
+    # Set the frame identifier if it's available.
+    # The "top" guest instance will have this as null since it's in a top frame not a sub frame
+    this.frameIdentifier = config.subFrameIdentifier || null
 
     cfOptions =
       config: config
@@ -132,8 +138,12 @@ module.exports = class Guest extends Delegator
       link: [{href: decodeURIComponent(window.location.href)}]
     })
 
-    return Promise.all([metadataPromise, uriPromise]).then ([metadata, href]) ->
-      return {uri: normalizeURI(href, baseURI), metadata}
+    return Promise.all([metadataPromise, uriPromise]).then ([metadata, href]) =>
+      return {
+        uri: normalizeURI(href, baseURI),
+        metadata,
+        frameIdentifier: this.frameIdentifier
+      }
 
   _setupInitialState: (config) ->
     this.publish('panelReady')
@@ -156,7 +166,14 @@ module.exports = class Guest extends Delegator
     crossframe.on 'scrollToAnnotation', (tag) =>
       for anchor in @anchors when anchor.highlights?
         if anchor.annotation.$tag is tag
-          scrollIntoView(anchor.highlights[0])
+          event = new CustomEvent('scrolltorange', {
+            bubbles: true
+            cancelable: true
+            detail: anchor.range
+          })
+          defaultNotPrevented = @element[0].dispatchEvent(event)
+          if defaultNotPrevented
+            scrollIntoView(anchor.highlights[0])
 
     crossframe.on 'getDocumentInfo', (cb) =>
       this.getDocumentInfo()
