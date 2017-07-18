@@ -4,6 +4,33 @@ Entries in this change log follow the format suggested at http://keepachangelog.
 
 # Change Log
 
+## [1.31.0] - 2017-07-17
+
+### Changed
+
+- Add mechanism for publishers to react to changes in the width and expanded
+  state of the sidebar ([#499](https://github.com/hypothesis/client/pull/499)).
+
+## [1.30.0] - 2017-07-14
+
+### Changed
+
+- Enable annotating in iframes which have the same origin as the top-level page
+  ([#498](https://github.com/hypothesis/client/pull/498)).
+
+## [1.29.0] - 2017-07-14
+
+### Changed
+
+- Remove need to set feature flag to enable iframe support
+  ([#496](https://github.com/hypothesis/client/pull/496)).
+
+- Do not inject client into small or hidden iframes
+  ([#497](https://github.com/hypothesis/client/pull/497)).
+
+- Persist login between sessions when using OAuth
+  ([#494](https://github.com/hypothesis/client/pull/494)).
+
 ## [1.28.0] - 2017-07-11
 
 ### Changed
